@@ -1,4 +1,5 @@
 import { ref } from '@vue/reactivity'
+import { projectFireStore } from '../firbase/config'
 
 const getPosts = () => {
     const posts = ref([])
@@ -6,15 +7,11 @@ const getPosts = () => {
 
     const load = async () => {
       try {
-        await new Promise(resolve => {
-          setTimeout(resolve, 2000)
-        })
+        const res = await projectFireStore.collection('posts').orderBy('createdAt', 'desc').get();
 
-        let data = await fetch('http://localhost:3000/posts')
-        if(!data.ok) {
-          throw Error('no data available')
-        }
-        posts.value = await data.json()
+        posts.value = res.docs.map(doc => {;
+          return{ ...doc.data(), id: doc.id }
+        })
       } 
       catch (err) {
         error.value = err.message
